@@ -6,28 +6,11 @@ namespace MiniComp.Core.App;
 
 public static class WebApp
 {
-    #region HttpContext
-
-    /// <summary>
-    /// 当前异步控制流的HttpContext
-    /// </summary>
-    private static readonly AsyncLocal<IHttpContextAccessor> AsyncLocalHttpContextAccessor = new();
-
-    /// <summary>
-    /// 设置HttpContext
-    /// </summary>
-    /// <param name="httpContextAccessor"></param>
-    public static void SetHttpContext(IHttpContextAccessor httpContextAccessor) =>
-        AsyncLocalHttpContextAccessor.Value = httpContextAccessor;
-
     /// <summary>
     /// http上下文
     /// </summary>
-    public static HttpContext? HttpContext => AsyncLocalHttpContextAccessor.Value?.HttpContext;
-
-    #endregion HttpContext
-
-    #region IServiceProvider
+    public static HttpContext? HttpContext =>
+        HostApp.RootServiceProvider.GetService<IHttpContextAccessor>()?.HttpContext;
 
     /// <summary>
     /// 当前异步控制流的IServiceProvider
@@ -37,7 +20,7 @@ public static class WebApp
     /// <summary>
     /// 创建新的服务域
     /// </summary>
-    public static void CreateNewScopeServiceProvider()
+    private static void CreateNewScopeServiceProvider()
     {
         AsyncLocalServiceProvider.Value = HostApp
             .RootServiceProvider.CreateAsyncScope()
@@ -55,20 +38,15 @@ public static class WebApp
             {
                 return AsyncLocalServiceProvider.Value;
             }
-            else if (HttpContext != null)
+            if (HttpContext != null)
             {
                 AsyncLocalServiceProvider.Value = HttpContext.RequestServices;
                 return AsyncLocalServiceProvider.Value;
             }
-            else
-            {
-                CreateNewScopeServiceProvider();
-                return AsyncLocalServiceProvider.Value!;
-            }
+            CreateNewScopeServiceProvider();
+            return AsyncLocalServiceProvider.Value!;
         }
     }
-
-    #endregion IServiceProvider
 
     /// <summary>
     /// 异步上下文数据
