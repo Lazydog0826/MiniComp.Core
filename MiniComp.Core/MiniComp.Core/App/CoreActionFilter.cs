@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using MiniComp.Core.App.CoreException.Provide;
 using MiniComp.Core.AppAttribute;
 using MiniComp.Core.Extension;
 
-namespace MiniComp.Core.App.Filter;
+namespace MiniComp.Core.App;
 
 /// <summary>
-/// 模型验证与响应处理过滤器，顺序：100（从小到大执行）
+/// 模型验证与响应处理过滤器
 /// </summary>
-public class CoreActionFilterAttribute : ActionFilterAttribute
+public class CoreActionFilter : ActionFilterAttribute
 {
     public override async Task OnActionExecutionAsync(
         ActionExecutingContext context,
@@ -35,14 +36,13 @@ public class CoreActionFilterAttribute : ActionFilterAttribute
         ResultExecutionDelegate next
     )
     {
-        if (WebApp.HttpContext?.GetMetaData<NoHandleResponse>() == null)
+        if (WebApp.HttpContext?.GetMetaData<NoHandleResponseAttribute>() == null)
         {
             var res =
                 context.Result.GetType() == typeof(EmptyResult)
                     ? WebApiResponse.Operate()
                     : WebApiResponse.Query((context.Result as ObjectResult)?.Value ?? new { });
-            var stagingRequest = new OkObjectResult(res);
-            context.Result = stagingRequest;
+            context.Result = new OkObjectResult(res);
         }
         await base.OnResultExecutionAsync(context, next);
     }
