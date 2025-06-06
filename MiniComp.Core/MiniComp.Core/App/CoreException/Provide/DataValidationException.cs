@@ -20,7 +20,7 @@ public class DataValidationException : CustomException
         base.Data.Add(nameof(_errors), _errors);
     }
 
-    public override WebApiResponse GetWebApiCallBack()
+    public override WebApiResponse GetWebApiResponse()
     {
         return WebApiResponse.Error(Message, HttpStatusCode.BadRequest, _errors);
     }

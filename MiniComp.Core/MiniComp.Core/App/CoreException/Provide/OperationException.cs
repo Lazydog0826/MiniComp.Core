@@ -10,7 +10,7 @@ public class OperationException : CustomException
     public OperationException(string message)
         : base(new Status(StatusCode.Unknown, message), message) { }
 
-    public override WebApiResponse GetWebApiCallBack()
+    public override WebApiResponse GetWebApiResponse()
     {
         return WebApiResponse.Error(Message);
     }

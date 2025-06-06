@@ -18,7 +18,6 @@ public class WebApiResponse
         Message = message;
         Data = data;
         Errors = errors;
-        ApiLogId = WebApp.GetValue<long>(nameof(ApiLogId));
     }
 
     /// <summary>
@@ -39,7 +38,7 @@ public class WebApiResponse
     /// <summary>
     /// 日志ID
     /// </summary>
-    public long ApiLogId { get; private set; }
+    public long ApiLogId => WebApp.GetValue<long>(nameof(ApiLogId));
 
     /// <summary>
     /// 模型验证错误信息

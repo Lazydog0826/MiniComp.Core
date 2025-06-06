@@ -16,5 +16,5 @@ public abstract class CustomException : RpcException
     protected CustomException(Status status, string message)
         : base(status, message) { }
 
-    public abstract WebApiResponse GetWebApiCallBack();
+    public abstract WebApiResponse GetWebApiResponse();
 }
