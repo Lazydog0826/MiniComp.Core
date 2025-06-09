@@ -16,31 +16,18 @@ public static class HostApp
     public static IHostEnvironment HostEnvironment { get; private set; } = null!;
     public static string AppRootPath { get; private set; } = null!;
 
-    private static readonly string EnvironmentName =
-        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
-
     public static async Task StartWebAppAsync(
         string[] args,
         Func<WebApplicationBuilder, Task> builderFunc,
         Func<WebApplication, Task> appFunc
     )
     {
-        var baseDirectory = AppContext.BaseDirectory;
-        var builder = WebApplication.CreateEmptyBuilder(
-            new WebApplicationOptions
-            {
-                Args = args,
-                EnvironmentName = EnvironmentName,
-                ApplicationName = Assembly.GetEntryAssembly()?.GetName().Name,
-                ContentRootPath = baseDirectory,
-                WebRootPath = Path.Combine(baseDirectory, "wwwroot"),
-            }
-        );
+        var builder = WebApplication.CreateBuilder(args);
         AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
         AppDomainTypes = ObjectExtension.GetProjectAllType();
         Configuration = builder.Configuration;
         HostEnvironment = builder.Environment;
-        AppRootPath = baseDirectory;
+        AppRootPath = AppContext.BaseDirectory;
         builder.Services.AddLogging();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHealthChecks();
@@ -57,29 +44,25 @@ public static class HostApp
 
     public static async Task StartConsoleAppAsync(
         string[] args,
-        Func<HostApplicationBuilder, Task> builderFunc,
+        Func<IHostBuilder, Task> builderFunc,
         Func<IHost, Task> appFunc
     )
     {
-        var builder = Host.CreateEmptyApplicationBuilder(
-            new HostApplicationBuilderSettings
-            {
-                ApplicationName = Assembly.GetEntryAssembly()?.GetName().Name,
-                Args = args,
-                Configuration = null,
-                ContentRootPath = AppContext.BaseDirectory,
-                DisableDefaults = false,
-                EnvironmentName = EnvironmentName,
-            }
-        );
+        var builder = Host.CreateDefaultBuilder(args)
+            .ConfigureServices(
+                (hostContext, services) =>
+                {
+                    Configuration = hostContext.Configuration;
+                    HostEnvironment = hostContext.HostingEnvironment;
+                    services.AddLogging();
+                }
+            );
         AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
         AppDomainTypes = ObjectExtension.GetProjectAllType();
-        Configuration = builder.Configuration;
-        HostEnvironment = builder.Environment;
         AppRootPath = AppContext.BaseDirectory;
-        builder.Services.AddLogging();
         await builderFunc(builder);
         var app = builder.Build();
+        RootServiceProvider = app.Services;
         await appFunc(app);
         await app.RunAsync();
     }

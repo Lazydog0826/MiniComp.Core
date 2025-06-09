@@ -9,7 +9,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>9.0.6</Version>
+    <Version>9.1.0</Version>
     <PackageProjectUrl>https://github.com/Lazydog0826/MiniComp.Core</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
