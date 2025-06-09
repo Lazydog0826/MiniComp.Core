@@ -1,81 +1,86 @@
 ﻿using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MiniComp.Core.Extension;
 
 namespace MiniComp.Core.App;
 
 public static class HostApp
 {
-    private static IConfiguration _configuration = null!;
-    private static IServiceProvider _rootServiceProvider = null!;
-    private static List<Assembly> _appAssemblyList = null!;
-    private static List<Type> _appDomainTypes = null!;
-    private static IHostEnvironment _hostEnvironment = null!;
-    private static string _appRootPath = null!;
+    public static IConfiguration Configuration { get; private set; } = null!;
+    public static IServiceProvider RootServiceProvider { get; private set; } = null!;
+    public static List<Assembly> AppAssemblyList { get; private set; } = null!;
+    public static List<Type> AppDomainTypes { get; private set; } = null!;
+    public static IHostEnvironment HostEnvironment { get; private set; } = null!;
+    public static string AppRootPath { get; private set; } = null!;
 
-    public static IConfiguration Configuration
+    private static readonly string EnvironmentName =
+        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
+    public static async Task StartWebAppAsync(
+        string[] args,
+        Func<WebApplicationBuilder, Task> builderFunc,
+        Func<WebApplication, Task> appFunc
+    )
     {
-        get => _configuration;
-        set
-        {
-            if (_configuration != null)
-                throw new Exception("重复赋值异常");
-            _configuration = value;
-        }
+        var baseDirectory = AppContext.BaseDirectory;
+        var builder = WebApplication.CreateEmptyBuilder(
+            new WebApplicationOptions
+            {
+                Args = args,
+                EnvironmentName = EnvironmentName,
+                ApplicationName = Assembly.GetEntryAssembly()?.GetName().Name,
+                ContentRootPath = baseDirectory,
+                WebRootPath = Path.Combine(baseDirectory, "wwwroot"),
+            }
+        );
+        AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
+        AppDomainTypes = ObjectExtension.GetProjectAllType();
+        Configuration = builder.Configuration;
+        HostEnvironment = builder.Environment;
+        AppRootPath = baseDirectory;
+        builder.Services.AddLogging();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHealthChecks();
+        await builderFunc(builder);
+        var app = builder.Build();
+        RootServiceProvider = app.Services;
+        app.UseRouting();
+        app.MapHealthChecks("/Health");
+        app.MapHealthChecks("/Healthz");
+        app.MapHealthChecks("/");
+        await appFunc(app);
+        await app.RunAsync();
     }
 
-    public static IServiceProvider RootServiceProvider
+    public static async Task StartConsoleAppAsync(
+        string[] args,
+        Func<HostApplicationBuilder, Task> builderFunc,
+        Func<IHost, Task> appFunc
+    )
     {
-        get => _rootServiceProvider;
-        set
-        {
-            if (_rootServiceProvider != null)
-                throw new Exception("重复赋值异常");
-            _rootServiceProvider = value;
-        }
-    }
-
-    public static List<Assembly> AppAssemblyList
-    {
-        get => _appAssemblyList;
-        set
-        {
-            if (_appAssemblyList != null)
-                throw new Exception("重复赋值异常");
-            _appAssemblyList = value;
-        }
-    }
-
-    public static List<Type> AppDomainTypes
-    {
-        get => _appDomainTypes;
-        set
-        {
-            if (_appDomainTypes != null)
-                throw new Exception("重复赋值异常");
-            _appDomainTypes = value;
-        }
-    }
-
-    public static IHostEnvironment HostEnvironment
-    {
-        get => _hostEnvironment;
-        set
-        {
-            if (_hostEnvironment != null)
-                throw new Exception("重复赋值异常");
-            _hostEnvironment = value;
-        }
-    }
-
-    public static string AppRootPath
-    {
-        get => _appRootPath;
-        set
-        {
-            if (_appRootPath != null)
-                throw new Exception("重复赋值异常");
-            _appRootPath = value;
-        }
+        var builder = Host.CreateEmptyApplicationBuilder(
+            new HostApplicationBuilderSettings
+            {
+                ApplicationName = Assembly.GetEntryAssembly()?.GetName().Name,
+                Args = args,
+                Configuration = null,
+                ContentRootPath = AppContext.BaseDirectory,
+                DisableDefaults = false,
+                EnvironmentName = EnvironmentName,
+            }
+        );
+        AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
+        AppDomainTypes = ObjectExtension.GetProjectAllType();
+        Configuration = builder.Configuration;
+        HostEnvironment = builder.Environment;
+        AppRootPath = AppContext.BaseDirectory;
+        builder.Services.AddLogging();
+        await builderFunc(builder);
+        var app = builder.Build();
+        await appFunc(app);
+        await app.RunAsync();
     }
 }
