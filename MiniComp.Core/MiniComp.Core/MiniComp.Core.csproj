@@ -1,40 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Authors>Lazydog0826</Authors>
-    <RepositoryUrl>https://github.com/Lazydog0826/MiniComp.Core</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>9.1.1</Version>
-    <PackageProjectUrl>https://github.com/Lazydog0826/MiniComp.Core</PackageProjectUrl>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\icon.png">
-      <Pack>True</Pack>
-      <PackagePath>.</PackagePath>
-    </None>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>.</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NodaTime" Version="3.2.2" />
-    <PackageReference Include="SqlSugarCore" Version="5.1.4.195" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Authors>Lazydog0826</Authors>
+        <RepositoryUrl>https://github.com/Lazydog0826/MiniComp.Core</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Version>9.1.1</Version>
+        <PackageProjectUrl>https://github.com/Lazydog0826/MiniComp.Core</PackageProjectUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\icon.png">
+            <Pack>True</Pack>
+            <PackagePath>.</PackagePath>
+        </None>
+        <None Include="..\..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>.</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.5"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="NodaTime" Version="3.2.2"/>
+        <PackageReference Include="SqlSugarCore" Version="5.1.4.195"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="icon.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>
