@@ -71,7 +71,7 @@ public class WebApiResponse
     public static WebApiResponse Query(
         object? data = null,
         HttpStatusCode httpStatusCode = HttpStatusCode.OK,
-        string message = "成功"
+        string message = ""
     )
     {
         return new WebApiResponse(httpStatusCode, message, data, null);
