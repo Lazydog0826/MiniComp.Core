@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyModel;
 
 namespace MiniComp.Core.Extension;
@@ -280,13 +281,27 @@ public static class ObjectExtension
     }
 
     /// <summary>
-    /// 获取项目中所有类型
+    /// 根据程序集获取所有类型
     /// </summary>
+    /// <param name="assemblyList"></param>
     /// <returns></returns>
-    public static List<Type> GetProjectAllType()
+    public static List<Type> GetTypeListByAssemblyList(this List<Assembly> assemblyList)
     {
-        var types = GetProjectAllAssembly().SelectMany(d => d.GetTypes()).ToList();
+        var types = assemblyList.SelectMany(d => d.GetTypes()).ToList();
         return types;
+    }
+
+    /// <summary>
+    /// 根据正则匹配程序集
+    /// </summary>
+    /// <param name="regex"></param>
+    /// <returns></returns>
+    public static List<Assembly> GetAssemblyByRegex(Regex regex)
+    {
+        return AppDomain
+            .CurrentDomain.GetAssemblies()
+            .Where(x => !x.IsDynamic && regex.IsMatch(x.GetName().Name ?? string.Empty))
+            .ToList();
     }
 
     #endregion 获取项目中所有类型

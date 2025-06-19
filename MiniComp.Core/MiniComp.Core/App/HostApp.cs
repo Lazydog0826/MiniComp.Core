@@ -24,7 +24,7 @@ public static class HostApp
     {
         var builder = WebApplication.CreateBuilder(args);
         AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
-        AppDomainTypes = ObjectExtension.GetProjectAllType();
+        AppDomainTypes = AppAssemblyList.GetTypeListByAssemblyList();
         Configuration = builder.Configuration;
         HostEnvironment = builder.Environment;
         AppRootPath = AppContext.BaseDirectory;
@@ -58,7 +58,7 @@ public static class HostApp
                 }
             );
         AppAssemblyList = ObjectExtension.GetProjectAllAssembly();
-        AppDomainTypes = ObjectExtension.GetProjectAllType();
+        AppDomainTypes = AppAssemblyList.GetTypeListByAssemblyList();
         AppRootPath = AppContext.BaseDirectory;
         await builderFunc(builder);
         var app = builder.Build();
